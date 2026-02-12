@@ -1,24 +1,22 @@
-# Secrets
+# --- Secrets ---
 **/env.sh
-**/*.key
-**/*.pem
+**/.env
+**/*secret*
+**/*token*
+**/*key*
+/root/.ssh/
 
-# Temp / logs / outputs
-**/tmp/**
-**/tmp_work/**
-**/logs/**
-**/*.log
-**/out/**
+# --- Outputs / logs / tmp ---
+**/__pycache__/
+**/*.pyc
 **/*.wav
-**/*.mp3
+IA/tmp/
+IA/logs/
+SiteInternet/logs/
+tmp_work/
+xtts_cache/
 
-# Huge training artifacts / checkpoints
-workspace/runs/**
-/workspace/runs/**
-runs/**
-
-# Python
-__pycache__/
-*.pyc
-.venv/
+# --- Heavy stuff (NEVER COMMIT) ---
+runs/
+datasets/
 venv/
