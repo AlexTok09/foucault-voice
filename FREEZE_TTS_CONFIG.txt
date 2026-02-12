@@ -1,0 +1,19 @@
+=== XTTS FREEZE CONFIG ===
+
+MODEL_ORIG=/workspace/runs/run_20260210_110029_ft_v2_like_ref_mixed_25ep/run/training/XTTS_v2.0_original_model_files
+CHECKPOINT=/workspace/runs/run_20260210_110029_ft_v2_like_ref_mixed_25ep/run/training/GPT_XTTS_FT-February-10-2026_11+02AM-0000000/best_model_19875.pth
+SPEAKERS_PTH=/workspace/runs/run_20260210_110029_ft_v2_like_ref_mixed_25ep/run/training/XTTS_v2.0_original_model_files/speakers_xtts.pth
+SPEAKER_WAV=/workspace/test_speaker.wav
+LANG=fr
+
+=== AUDIO STITCHING ===
+XFADE_MS=320
+EDGE_FADE_MS=80
+PAUSE_MS=160
+MICRO_PAUSE_MS=40
+TAIL_SILENCE_MS=700
+
+=== MISTRAL ===
+temperature=0.2
+MIN_CHARS=140
+MAX_CHARS=230
