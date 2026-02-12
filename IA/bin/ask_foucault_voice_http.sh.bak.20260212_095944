@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+QUESTION="${1:-}"
+if [[ -z "$QUESTION" ]]; then
+  echo "Usage: $0 \"ta question\""
+  exit 1
+fi
+
+source /workspace/venv/bin/activate
+
+: "${MISTRAL_API_KEY:?ERROR: export MISTRAL_API_KEY=...}"
+export SYSTEM_PROMPT_PATH="${SYSTEM_PROMPT_PATH:-/workspace/IA/prompts/system_foucault.txt}"
+export MIN_CHARS="${MIN_CHARS:-100}"
+export MAX_CHARS="${MAX_CHARS:-220}"
+
+mkdir -p /workspace/tmp_work
+CHUNKS_JSON="/workspace/tmp_work/chunks.json"
+export CHUNKS_JSON
+
+HOST="${HOST:-127.0.0.1}"
+PORT="${PORT:-7010}"
+BASE_URL="http://${HOST}:${PORT}"
+
+TS="$(date +%Y%m%d_%H%M%S)"
+OUT_NAME="${OUT_NAME:-foucault_${TS}.wav}"
+
+# -----------------------------
+# 1) Mistral -> chunks.json (retry if length violation)
+# -----------------------------
+
+ok=0
+for attempt in 1 2 3; do
+  if python /workspace/IA/bin/mistral_generate.py "$QUESTION" \
+    | CHUNKS_JSON="$CHUNKS_JSON" /workspace/IA/bin/mistral_json_to_chunks_json.py \
+      >/dev/null 2>/workspace/tmp_work/chunk_err.txt
+  then
+    ok=1
+    break
+  fi
+
+  QUESTION="${QUESTION} Réponds en JSON strict. Tous les chunks doivent faire entre ${MIN_CHARS} et ${MAX_CHARS} caractères, sans exception."
+  sleep 0.2
+done
+
+if [[ "$ok" -ne 1 ]]; then
+  echo "ERROR: failed to produce valid chunks after retries" >&2
+  cat /workspace/tmp_work/chunk_err.txt >&2
+  exit 2
+fi
+
+# -----------------------------
+# 2) chunks.json -> XTTS HTTP
+# -----------------------------
+
+RESP="$(curl -sS "${BASE_URL}/speak" \
+  -H 'Content-Type: application/json' \
+  -d "{\"chunks_json\":\"${CHUNKS_JSON}\",\"out_name\":\"${OUT_NAME}\"}")"
+
+echo "$RESP"
+
+# Print wav path safely
+printf '%s' "$RESP" | python -c '
+import sys, json
+obj=json.load(sys.stdin)
+if obj.get("ok") and obj.get("out_path"):
+    print(obj["out_path"])
+else:
+    raise SystemExit(2)
+'

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Foucault Voice</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; max-width: 900px; }
+    textarea { width: 100%; min-height: 120px; font-size: 16px; padding: 10px; }
+    button { padding: 10px 14px; font-size: 16px; cursor: pointer; }
+    .row { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+    .status { margin-top: 12px; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    audio { width: 100%; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <h1>Pose une question → audio</h1>
+
+  <textarea id="q" placeholder="Écris ta question ici..."></textarea>
+
+  <div class="row">
+    <button id="send">Envoyer</button>
+    <span id="spin" style="display:none;">⏳ génération…</span>
+  </div>
+
+  <div class="status" id="status"></div>
+  <audio id="player" controls></audio>
+
+  <script>
+    const q = document.getElementById("q");
+    const btn = document.getElementById("send");
+    const status = document.getElementById("status");
+    const spin = document.getElementById("spin");
+    const player = document.getElementById("player");
+
+    async function ask() {
+      const question = q.value.trim();
+      if (!question) return;
+
+      btn.disabled = true;
+      spin.style.display = "inline";
+      status.textContent = "Envoi…";
+      player.removeAttribute("src");
+
+      try {
+        const r = await fetch("/api/ask", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({question})
+        });
+        const j = await r.json();
+        if (!j.ok) {
+          status.textContent = "Erreur:\n" + (j.error || JSON.stringify(j));
+          return;
+        }
+        status.textContent = "OK\n" + j.audio_url;
+        player.src = j.audio_url + "?t=" + Date.now();
+        await player.play().catch(() => {});
+      } catch (e) {
+        status.textContent = "Erreur réseau:\n" + e;
+      } finally {
+        btn.disabled = false;
+        spin.style.display = "none";
+      }
+    }
+
+    btn.addEventListener("click", ask);
+    q.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") ask();
+    });
+  </script>
+</body>
+</html>

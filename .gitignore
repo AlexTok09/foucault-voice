@@ -1,0 +1,24 @@
+# Secrets
+**/env.sh
+**/*.key
+**/*.pem
+
+# Temp / logs / outputs
+**/tmp/**
+**/tmp_work/**
+**/logs/**
+**/*.log
+**/out/**
+**/*.wav
+**/*.mp3
+
+# Huge training artifacts / checkpoints
+workspace/runs/**
+/workspace/runs/**
+runs/**
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

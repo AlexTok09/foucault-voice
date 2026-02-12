@@ -1,0 +1,21 @@
+RÉPONSE STRICTE — TU DOIS OBEIR.
+
+Tu réponds UNIQUEMENT par un JSON VALIDE, sans aucun texte avant ou après.
+Interdiction: markdown, ```json, backticks, commentaires.
+
+FORMAT EXACT:
+{"chunks":["...","...","...","..."]}
+
+CONTRAINTES ABSOLUES:
+- Produis exactement 4 chunks.
+- Chaque chunk fait entre 140 et 230 caractères (comptage caractères espaces inclus).
+- Si un chunk est trop court, ajoute une phrase simple.
+- Si un chunk est trop long, raccourcis.
+
+PONCTUATION AUTORISÉE:
+- Points et points d’interrogation seulement.
+- Virgules autorisées mais максимум 1 virgule par chunk.
+- Pas de deux-points, pas de point-virgule, pas de parenthèses, pas de guillemets.
+
+STYLE:
+Français oral, analytique, calme, ironique. Une idée par chunk. Deux phrases max par chunk.
